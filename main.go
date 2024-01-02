@@ -9,9 +9,9 @@ import (
 )
 
 type JsonResponse struct {
-	Status string		`json:"status"`
-	Message string	`json:"message"`
-	Query int				`json:"query,omitempty"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Query   int    `json:"query,omitempty"`
 }
 
 var opt = slog.HandlerOptions{}
@@ -33,18 +33,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	qs := r.URL.Query().Get("query")
 	i, _ := strconv.Atoi(qs)
 	s := JsonResponse{
-		Status: "success",
+		Status:  "success",
 		Message: "root handler",
-		Query: i,
+		Query:   i,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	logger.Info("root handler", "query", qs)
-	json.NewEncoder(w).Encode(s)
+	if err := json.NewEncoder(w).Encode(s); err != nil {
+		logger.Error(err.Error())
+	}
 }
 
 func notFoundHanlder(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	logger.Info("not found handler")
-	w.Write([]byte("Not Found."))
+	if _, err := w.Write([]byte("Not Found.")); err != nil {
+		logger.Error(err.Error())
+	}
 }

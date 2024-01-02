@@ -11,7 +11,7 @@ import (
 )
 
 type testType struct {
-	url string
+	url    string
 	expect any
 }
 
@@ -19,31 +19,31 @@ var testCases = []testType{
 	{
 		url: "/",
 		expect: JsonResponse{
-			Status: "success",
-			Message: "root handler",	
+			Status:  "success",
+			Message: "root handler",
 		},
 	},
 	{
 		url: "/?query=123",
 		expect: JsonResponse{
-			Status: "success",
+			Status:  "success",
 			Message: "root handler",
-			Query: 123,
+			Query:   123,
 		},
 	},
 	{
 		url: "/?query=foobar",
 		expect: JsonResponse{
-			Status: "success",
+			Status:  "success",
 			Message: "root handler",
-			Query: 0,
+			Query:   0,
 		},
 	},
 }
 
 var test404Cases = []testType{
 	{
-		url: "/not-found",
+		url:    "/not-found",
 		expect: "Not Found.",
 	},
 }
