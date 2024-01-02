@@ -1,0 +1,50 @@
+package main
+
+import (
+	"encoding/json"
+	"log/slog"
+	"net/http"
+	"os"
+	"strconv"
+)
+
+type JsonResponse struct {
+	Status string		`json:"status"`
+	Message string	`json:"message"`
+	Query int				`json:"query,omitempty"`
+}
+
+var opt = slog.HandlerOptions{}
+var logger = slog.New(slog.NewJSONHandler(os.Stdout, &opt))
+
+func main() {
+	http.HandleFunc("/", handler)
+
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		logger.Error(err.Error())
+	}
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		notFoundHanlder(w, r)
+		return
+	}
+	qs := r.URL.Query().Get("query")
+	i, _ := strconv.Atoi(qs)
+	s := JsonResponse{
+		Status: "success",
+		Message: "root handler",
+		Query: i,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	logger.Info("root handler", "query", qs)
+	json.NewEncoder(w).Encode(s)
+}
+
+func notFoundHanlder(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	logger.Info("not found handler")
+	w.Write([]byte("Not Found."))
+}
