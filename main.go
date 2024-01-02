@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/tkdn/go-study/middleware"
 )
 
 type JsonResponse struct {
@@ -18,9 +20,10 @@ var opt = slog.HandlerOptions{}
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, &opt))
 
 func main() {
-	http.HandleFunc("/", handler)
+	r := http.NewServeMux()
+	r.HandleFunc("/", handler)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", middleware.HostCheckMiddleware(r)); err != nil {
 		logger.Error(err.Error())
 	}
 }
