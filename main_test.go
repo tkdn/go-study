@@ -53,7 +53,7 @@ func TestHandler(t *testing.T) {
 	t.Cleanup(func() { ts.Close() })
 
 	for _, tc := range testCases {
-		var res JsonResponse
+		res := JsonResponse{}
 		code, b := testHelper(t, ts, tc.url)
 		if err := json.Unmarshal(b, &res); err != nil {
 			t.Errorf("error: %s", err)
