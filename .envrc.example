@@ -1,0 +1,5 @@
+export POSTGRES_USER=user
+export POSTGRES_PASSWORD=passw0rd
+export POSTGRES_DB=app
+export DB_HOST="127.0.0.1"
+export DB_PORT=5433
