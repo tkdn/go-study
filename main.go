@@ -37,7 +37,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	qs := r.URL.Query().Get("query")
 	qi, _ := strconv.Atoi(qs)
-	users := database.NewUserDB(db)
+	users := database.NewUserRepository(db)
 	u, err := users.GetById(1)
 	if err != nil {
 		log.Logger.Error(err.Error())
