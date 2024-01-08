@@ -16,13 +16,10 @@ func ConnectDB() *sqlx.DB {
 		log.Logger.Error(err.Error())
 		panic(err)
 	}
-
-	err = db.Ping()
-	if err != nil {
+	if err := db.Ping(); err != nil {
 		log.Logger.Error(err.Error())
 		panic(err)
 	}
-
 	return db
 }
 

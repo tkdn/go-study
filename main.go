@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/tkdn/go-study/infra/database"
 	"github.com/tkdn/go-study/log"
 	"github.com/tkdn/go-study/middleware"
@@ -14,36 +15,45 @@ type JsonResponse struct {
 	Status  string         `json:"status"`
 	Message string         `json:"message"`
 	Query   int            `json:"query,omitempty"`
-	User    *database.User `json:"user"`
+	User    *database.User `json:"user,omitempty"`
+}
+
+type server struct {
+	db *sqlx.DB
 }
 
 func main() {
-	r := http.NewServeMux()
-	r.HandleFunc("/", handler)
+	db := database.ConnectDB()
+	defer db.Close()
 
-	if err := http.ListenAndServe(":8080", middleware.RejectAdminInternal(r)); err != nil {
+	s := &server{db}
+	r := http.NewServeMux()
+	r.HandleFunc("/", s.handler)
+	m := middleware.RejectAdminInternal(r)
+
+	if err := http.ListenAndServe(":8080", m); err != nil {
 		log.Logger.Error(err.Error())
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	db := database.ConnectDB()
-	defer db.Close()
-
+func (s *server) handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		notFoundHanlder(w, r)
 		return
 	}
 
-	qs := r.URL.Query().Get("query")
-	qi, _ := strconv.Atoi(qs)
-	users := database.NewUserRepository(db)
-	u, err := users.GetById(1)
-	if err != nil {
-		log.Logger.Error(err.Error())
+	var u *database.User
+	q := r.URL.Query().Get("query")
+	qi, _ := strconv.Atoi(q)
+	id := r.URL.Query().Get("user_id")
+	ui, err := strconv.Atoi(id)
+
+	if err == nil {
+		users := database.NewUserRepository(s.db)
+		u, _ = users.GetById(ui)
 	}
 
-	s := JsonResponse{
+	res := JsonResponse{
 		Status:  "success",
 		Message: "root handler",
 		Query:   qi,
@@ -51,10 +61,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	log.Logger.Info("root handler", "query", qs)
-	if err := json.NewEncoder(w).Encode(s); err != nil {
-		log.Logger.Error(err.Error())
-	}
+	log.Logger.Info("root handler", "query", q, "user", u)
+	json.NewEncoder(w).Encode(res)
 }
 
 func notFoundHanlder(w http.ResponseWriter, r *http.Request) {

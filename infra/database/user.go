@@ -1,6 +1,9 @@
 package database
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	"github.com/tkdn/go-study/log"
+)
 
 type userRepo struct {
 	db *sqlx.DB
@@ -24,8 +27,13 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 
 func (u *userRepo) GetById(id int) (*User, error) {
 	var user User
-	err := u.db.Get(&user, "SELECT * FROM users WHERE id = $1", id)
+	stmt, err := u.db.Preparex(`SELECT * FROM users WHERE id = $1`)
 	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	if err := stmt.Get(&user, id); err != nil {
+		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	return &user, nil
