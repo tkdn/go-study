@@ -11,7 +11,7 @@ import (
 )
 
 func ConnectDB() *sqlx.DB {
-	db, err := sqlx.Open("postgres", getDsn())
+	db, err := sqlx.Open("postgres", GetDsn())
 	if err != nil {
 		log.Logger.Error(err.Error())
 		panic(err)
@@ -23,7 +23,7 @@ func ConnectDB() *sqlx.DB {
 	return db
 }
 
-func getDsn() string {
+func GetDsn() string {
 	p, _ := strconv.Atoi(os.Getenv("DB_PORT"))
 	dsn := fmt.Sprintf(
 		"postgres://%v:%v@%v:%v/%v?sslmode=disable",

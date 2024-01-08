@@ -8,12 +8,20 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/jmoiron/sqlx"
+	"github.com/tkdn/go-study/infra/database"
 )
 
 type testType struct {
 	name   string
 	url    string
 	expect any
+}
+
+var testUser database.User = database.User{
+	ID:   123,
+	Name: "test太郎",
+	Age:  999,
 }
 
 var testCases = []testType{
@@ -43,6 +51,16 @@ var testCases = []testType{
 			Query:   0,
 		},
 	},
+	{
+		name: "user exists",
+		url:  "/?user_id=123",
+		expect: JsonResponse{
+			Status:  "success",
+			Message: "root handler",
+			Query:   0,
+			User:    &testUser,
+		},
+	},
 }
 
 var test404Cases = []testType{
@@ -54,8 +72,15 @@ var test404Cases = []testType{
 }
 
 func TestHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	t.Cleanup(func() { ts.Close() })
+	td := &testDB{}
+	td.setupTestDB()
+	s := &server{td.db}
+	ts := httptest.NewServer(http.HandlerFunc(s.handler))
+	t.Cleanup(func() {
+		td.cleanTestData()
+		ts.Close()
+	})
+	td.insertTestData()
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -76,8 +101,14 @@ func TestHandler(t *testing.T) {
 }
 
 func TestNotFoundHandler(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(handler))
-	t.Cleanup(func() { ts.Close() })
+	td := &testDB{}
+	td.setupTestDB()
+	s := &server{td.db}
+	ts := httptest.NewServer(http.HandlerFunc(s.handler))
+	t.Cleanup(func() {
+		td.cleanTestData()
+		ts.Close()
+	})
 
 	for _, tt := range test404Cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -108,4 +139,34 @@ func testHelper(t *testing.T, ts *httptest.Server, u string) (int, []byte) {
 		return 0, nil
 	}
 	return r.StatusCode, body
+}
+
+type testDB struct {
+	db *sqlx.DB
+}
+
+func (t *testDB) setupTestDB() {
+	db, err := sqlx.Open("postgres", database.GetDsn())
+	if err != nil {
+		panic(err.Error())
+	}
+	t.db = db
+}
+
+func (t *testDB) insertTestData() {
+	// テスト用のスキーマを作成している是非が不明
+	t.db.Exec(`CREATE SCHEMA test_db`)
+	t.db.Exec(`SET search_path TO test_db`)
+	t.db.Exec(`CREATE TABLE users (
+		id SERIAL PRIMARY KEY,
+		name TEXT NOT NULL,
+		age INTEGER NOT NULL)`)
+	t.db.Exec(`INSERT INTO users(id, name, age) VALUES(123, 'test太郎', 999)`)
+}
+
+func (t *testDB) cleanTestData() {
+	t.db.Exec(`SET search_path TO test_db`)
+	t.db.Exec(`DROP TABLE users`)
+	t.db.Exec(`DROP SCHEMA test_db`)
+	t.db.Close()
 }
