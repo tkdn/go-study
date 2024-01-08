@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -68,7 +69,5 @@ func (s *server) handler(w http.ResponseWriter, r *http.Request) {
 func notFoundHanlder(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	log.Logger.Info("not found handler")
-	if _, err := w.Write([]byte("Not Found.")); err != nil {
-		log.Logger.Error(err.Error())
-	}
+	fmt.Fprint(w, "Not Found.")
 }
