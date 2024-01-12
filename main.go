@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 
@@ -19,25 +21,27 @@ type JsonResponse struct {
 	User    *database.User `json:"user,omitempty"`
 }
 
-type server struct {
+type handler struct {
 	db *sqlx.DB
 }
+
+var _ http.Handler = (*handler)(nil)
 
 func main() {
 	db := database.ConnectDB()
 	defer db.Close()
 
-	s := &server{db}
-	r := http.NewServeMux()
-	r.HandleFunc("/", s.handler)
-	m := middleware.RejectAdminInternal(r)
-
-	if err := http.ListenAndServe(":8080", m); err != nil {
+	h := &handler{db}
+	server := &http.Server{
+		Addr:    net.JoinHostPort("", "8080"),
+		Handler: middleware.RejectAdminInternal(h),
+	}
+	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Logger.Error(err.Error())
 	}
 }
 
-func (s *server) handler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		notFoundHanlder(w, r)
 		return
@@ -50,7 +54,7 @@ func (s *server) handler(w http.ResponseWriter, r *http.Request) {
 	ui, err := strconv.Atoi(id)
 
 	if err == nil {
-		users := database.NewUserRepository(s.db)
+		users := database.NewUserRepository(h.db)
 		u, _ = users.GetById(ui)
 	}
 
