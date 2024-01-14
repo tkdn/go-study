@@ -10,6 +10,7 @@ import (
 
 	"github.com/tkdn/go-study/graph/model"
 	"github.com/tkdn/go-study/infra/database"
+	"github.com/tkdn/go-study/log"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -19,12 +20,22 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*database.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	users, err := r.UserRepo.GetList()
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return users, nil
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id int) (*database.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	u, err := r.UserRepo.GetById(id)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return u, nil
 }
 
 // Mutation returns MutationResolver implementation.
