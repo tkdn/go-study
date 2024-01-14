@@ -74,7 +74,7 @@ var test404Cases = []testType{
 func TestHandler(t *testing.T) {
 	td := &testDB{}
 	td.setupTestDB()
-	r := &handler{td.db}
+	r := &myHandler{td.db}
 	ts := httptest.NewServer(r)
 	t.Cleanup(func() {
 		td.cleanTestData()
@@ -103,7 +103,7 @@ func TestHandler(t *testing.T) {
 func TestNotFoundHandler(t *testing.T) {
 	td := &testDB{}
 	td.setupTestDB()
-	r := &handler{td.db}
+	r := &myHandler{td.db}
 	ts := httptest.NewServer(r)
 	t.Cleanup(func() {
 		td.cleanTestData()
