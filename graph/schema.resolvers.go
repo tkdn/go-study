@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/tkdn/go-study/graph/model"
 	"github.com/tkdn/go-study/infra/database"
@@ -15,7 +14,12 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*database.User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+	u, err := r.UserRepo.Insert(input.Name, input.Age)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return u, nil
 }
 
 // Users is the resolver for the users field.

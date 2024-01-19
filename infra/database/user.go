@@ -20,6 +20,7 @@ type User struct {
 type UserRepository interface {
 	GetById(id int) (*User, error)
 	GetList() ([]*User, error)
+	Insert(name string, age int) (*User, error)
 }
 
 func NewUserRepository(db *sqlx.DB) UserRepository {
@@ -57,4 +58,17 @@ func (u *userRepo) GetList() ([]*User, error) {
 		users = append(users, &u)
 	}
 	return users, nil
+}
+
+func (u *userRepo) Insert(name string, age int) (*User, error) {
+	var user User
+	stmt, err := u.db.Preparex(`INSERT INTO users(name, age) VALUES($1, $2) RETURNING id, name, age`)
+	if err != nil {
+		return nil, err
+	}
+	err = stmt.Get(&user, name, age)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
