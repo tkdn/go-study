@@ -1,7 +1,13 @@
+type Post {
+  id: Int!
+  text: String!
+}
+
 type User {
   id: Int!
   name: String!
   age: Int!
+  post: [Post!]!
 }
 
 type Query {
@@ -14,6 +20,12 @@ input NewUser {
   age: Int!
 }
 
+input NewPost {
+  userId: Int!
+  text: String!
+}
+
 type Mutation {
   createUser(input: NewUser!): User!
+  createPost(input: NewPost!): Post!
 }

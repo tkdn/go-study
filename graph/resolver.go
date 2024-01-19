@@ -1,5 +1,6 @@
 package graph
 
+//go:generate go run github.com/99designs/gqlgen generate
 import (
 	"github.com/tkdn/go-study/infra/database"
 )

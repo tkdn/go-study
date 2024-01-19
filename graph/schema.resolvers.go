@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/tkdn/go-study/graph/model"
 	"github.com/tkdn/go-study/infra/database"
@@ -20,6 +21,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		return nil, err
 	}
 	return u, nil
+}
+
+// CreatePost is the resolver for the createPost field.
+func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*database.Post, error) {
+	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
 }
 
 // Users is the resolver for the users field.
@@ -42,11 +48,20 @@ func (r *queryResolver) User(ctx context.Context, id int) (*database.User, error
 	return u, nil
 }
 
+// Post is the resolver for the post field.
+func (r *userResolver) Post(ctx context.Context, obj *database.User) ([]*database.Post, error) {
+	panic(fmt.Errorf("not implemented: Post - post"))
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// User returns UserResolver implementation.
+func (r *Resolver) User() UserResolver { return &userResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }
