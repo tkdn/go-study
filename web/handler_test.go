@@ -1,4 +1,4 @@
-package main
+package web_test
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/jmoiron/sqlx"
 	"github.com/tkdn/go-study/infra/database"
+	"github.com/tkdn/go-study/web"
 )
 
 type testType struct {
@@ -28,7 +29,7 @@ var testCases = []testType{
 	{
 		name: "no query doesn't have query field.",
 		url:  "/",
-		expect: JsonResponse{
+		expect: web.JsonResponse{
 			Status:  "success",
 			Message: "root handler",
 		},
@@ -36,7 +37,7 @@ var testCases = []testType{
 	{
 		name: "query is like int",
 		url:  "/?query=123",
-		expect: JsonResponse{
+		expect: web.JsonResponse{
 			Status:  "success",
 			Message: "root handler",
 			Query:   123,
@@ -45,7 +46,7 @@ var testCases = []testType{
 	{
 		name: "query is like string.",
 		url:  "/?query=foobar",
-		expect: JsonResponse{
+		expect: web.JsonResponse{
 			Status:  "success",
 			Message: "root handler",
 			Query:   0,
@@ -54,7 +55,7 @@ var testCases = []testType{
 	{
 		name: "user exists",
 		url:  "/?user_id=123",
-		expect: JsonResponse{
+		expect: web.JsonResponse{
 			Status:  "success",
 			Message: "root handler",
 			Query:   0,
@@ -74,7 +75,7 @@ var test404Cases = []testType{
 func TestHandler(t *testing.T) {
 	td := &testDB{}
 	td.setupTestDB()
-	r := &myHandler{td.db}
+	r := &web.MyHandler{td.db}
 	ts := httptest.NewServer(r)
 	t.Cleanup(func() {
 		td.cleanTestData()
@@ -84,7 +85,7 @@ func TestHandler(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			res := JsonResponse{}
+			res := web.JsonResponse{}
 			code, b := testHelper(t, ts, tt.url)
 			if err := json.Unmarshal(b, &res); err != nil {
 				t.Errorf("error: %s", err)
@@ -103,7 +104,7 @@ func TestHandler(t *testing.T) {
 func TestNotFoundHandler(t *testing.T) {
 	td := &testDB{}
 	td.setupTestDB()
-	r := &myHandler{td.db}
+	r := &web.MyHandler{td.db}
 	ts := httptest.NewServer(r)
 	t.Cleanup(func() {
 		td.cleanTestData()
@@ -112,7 +113,7 @@ func TestNotFoundHandler(t *testing.T) {
 
 	for _, tt := range test404Cases {
 		t.Run(tt.name, func(t *testing.T) {
-			var res JsonResponse
+			var res web.JsonResponse
 			code, b := testHelper(t, ts, tt.url)
 
 			if code != 404 {

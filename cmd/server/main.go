@@ -19,7 +19,6 @@ func main() {
 
 	c := graph.Config{
 		Resolvers: &graph.Resolver{
-			DB:       db,
 			UserRepo: database.NewUserRepository(db),
 		},
 	}
@@ -32,6 +31,7 @@ func main() {
 		Addr:    net.JoinHostPort("", "8080"),
 		Handler: middleware.RejectAdminInternal(mux),
 	}
+	log.Logger.Info("server start")
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Logger.Error(err.Error())
 	}

@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"encoding/json"
@@ -19,13 +19,13 @@ type JsonResponse struct {
 	User    *database.User `json:"user,omitempty"`
 }
 
-type myHandler struct {
-	db *sqlx.DB
+type MyHandler struct {
+	DB *sqlx.DB
 }
 
-var _ http.Handler = (*myHandler)(nil)
+var _ http.Handler = (*MyHandler)(nil)
 
-func (h *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		notFoundHanlder(w, r)
 		return
@@ -38,7 +38,7 @@ func (h *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ui, err := strconv.Atoi(id)
 
 	if err == nil {
-		users := database.NewUserRepository(h.db)
+		users := database.NewUserRepository(h.DB)
 		u, _ = users.GetById(ui)
 	}
 
