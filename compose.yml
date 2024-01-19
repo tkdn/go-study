@@ -1,0 +1,17 @@
+---
+version: "3"
+services:
+  postgres:
+    image: "postgres:16.1"
+    environment:
+      TZ: "Asia/Tokyo"
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - "./docker/postgresql/ddl.sql:/docker-entrypoint-initdb.d/00_ddl.sql"
+      - "./docker/postgresql/dml.sql:/docker-entrypoint-initdb.d/01_dml.sql"
+      - "./var/postgres:/var/lib/postgresql"
+    ports:
+      - "5432:5432"
