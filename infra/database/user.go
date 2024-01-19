@@ -19,6 +19,8 @@ type User struct {
 
 type UserRepository interface {
 	GetById(id int) (*User, error)
+	GetList() ([]*User, error)
+	Insert(name string, age int) (*User, error)
 }
 
 func NewUserRepository(db *sqlx.DB) UserRepository {
@@ -34,6 +36,38 @@ func (u *userRepo) GetById(id int) (*User, error) {
 	}
 	if err := stmt.Get(&user, id); err != nil {
 		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (u *userRepo) GetList() ([]*User, error) {
+	var users []*User
+	rows, err := u.db.Queryx(`SELECT * FROM users`)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	for rows.Next() {
+		var u User
+		err = rows.StructScan(&u)
+		if err != nil {
+			log.Logger.Error(err.Error())
+			return nil, err
+		}
+		users = append(users, &u)
+	}
+	return users, nil
+}
+
+func (u *userRepo) Insert(name string, age int) (*User, error) {
+	var user User
+	stmt, err := u.db.Preparex(`INSERT INTO users(name, age) VALUES($1, $2) RETURNING id, name, age`)
+	if err != nil {
+		return nil, err
+	}
+	err = stmt.Get(&user, name, age)
+	if err != nil {
 		return nil, err
 	}
 	return &user, nil
