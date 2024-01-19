@@ -1,5 +1,5 @@
 SET search_path = public;
 
-INSERT INTO users(id, name, age) VALUES(1, 'Mike', 10);
-INSERT INTO users(id, name, age) VALUES(2, 'Jane', 6);
-INSERT INTO users(id, name, age) VALUES(3, 'George', 13);
+INSERT INTO users(name, age) VALUES('Mike', 10);
+INSERT INTO users(name, age) VALUES('Jane', 6);
+INSERT INTO users(name, age) VALUES('George', 13);
