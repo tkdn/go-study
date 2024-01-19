@@ -5,13 +5,13 @@ import (
 	"os"
 	"strconv"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"github.com/tkdn/go-study/log"
 )
 
 func ConnectDB() *sqlx.DB {
-	db, err := sqlx.Open("postgres", GetDsn())
+	db, err := sqlx.Open("pgx", GetDsn())
 	if err != nil {
 		log.Logger.Error(err.Error())
 		panic(err)

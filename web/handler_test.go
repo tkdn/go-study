@@ -147,7 +147,7 @@ type testDB struct {
 }
 
 func (t *testDB) setupTestDB() {
-	db, err := sqlx.Open("postgres", database.GetDsn())
+	db, err := sqlx.Open("pgx", database.GetDsn())
 	if err != nil {
 		panic(err.Error())
 	}

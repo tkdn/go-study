@@ -1,12 +1,17 @@
 package database
 
 import (
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 	"github.com/jmoiron/sqlx"
-	"github.com/tkdn/go-study/log"
 )
 
 type userRepo struct {
-	db *sqlx.DB
+	db     *sqlx.DB
+	tables struct {
+		users  *goqu.SelectDataset
+		musers *goqu.InsertDataset
+	}
 }
 
 // API レスポンスのモデルも兼ねているが
@@ -24,50 +29,46 @@ type UserRepository interface {
 }
 
 func NewUserRepository(db *sqlx.DB) UserRepository {
-	return &userRepo{db}
+	r := &userRepo{}
+	r.db = db
+	r.tables.users = goqu.Dialect("postgres").From("users").Prepared(true)
+	r.tables.musers = goqu.Dialect("postgres").Insert("users").Prepared(true)
+	return r
 }
 
-func (u *userRepo) GetById(id int) (*User, error) {
-	var user User
-	stmt, err := u.db.Preparex(`SELECT * FROM users WHERE id = $1`)
+func (r *userRepo) GetById(id int) (*User, error) {
+	q, args, err := r.tables.users.Select("id", "name", "age").Where(goqu.C("id").Eq(id)).ToSQL()
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
-	if err := stmt.Get(&user, id); err != nil {
-		log.Logger.Error(err.Error())
+	var user User
+	if err := r.db.Get(&user, q, args...); err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (u *userRepo) GetList() ([]*User, error) {
-	var users []*User
-	rows, err := u.db.Queryx(`SELECT * FROM users`)
+func (r *userRepo) GetList() ([]*User, error) {
+	q, args, err := r.tables.users.Select("id", "name", "age").ToSQL()
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
-	for rows.Next() {
-		var u User
-		err = rows.StructScan(&u)
-		if err != nil {
-			log.Logger.Error(err.Error())
-			return nil, err
-		}
-		users = append(users, &u)
+	var users []*User
+	if err := r.db.Select(&users, q, args...); err != nil {
+		return nil, err
 	}
 	return users, nil
 }
 
-func (u *userRepo) Insert(name string, age int) (*User, error) {
-	var user User
-	stmt, err := u.db.Preparex(`INSERT INTO users(name, age) VALUES($1, $2) RETURNING id, name, age`)
+func (r *userRepo) Insert(name string, age int) (*User, error) {
+	q, args, err := r.tables.musers.Rows(
+		goqu.Record{"name": name, "age": age},
+	).Returning("id", "name", "age").ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	err = stmt.Get(&user, name, age)
-	if err != nil {
+	var user User
+	if err := r.db.Get(&user, q, args...); err != nil {
 		return nil, err
 	}
 	return &user, nil
