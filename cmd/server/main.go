@@ -12,8 +12,8 @@ import (
 	"github.com/tkdn/go-study/graph"
 	"github.com/tkdn/go-study/infra"
 	"github.com/tkdn/go-study/log"
-	"github.com/tkdn/go-study/middleware"
 	"github.com/tkdn/go-study/telemetry"
+	"github.com/tkdn/go-study/web/middleware"
 )
 
 func main() {
