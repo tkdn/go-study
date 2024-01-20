@@ -7,19 +7,21 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/tkdn/go-study/domain"
 	"github.com/tkdn/go-study/graph"
-	"github.com/tkdn/go-study/infra/database"
+	"github.com/tkdn/go-study/infra"
 	"github.com/tkdn/go-study/log"
 	"github.com/tkdn/go-study/middleware"
 )
 
 func main() {
-	db := database.ConnectDB()
+	db := infra.ConnectDB()
 	defer db.Close()
 
 	c := graph.Config{
 		Resolvers: &graph.Resolver{
-			UserRepo: database.NewUserRepository(db),
+			UserRepo: domain.NewUserRepository(db),
+			PostRepo: domain.NewPostRepository(db),
 		},
 	}
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))

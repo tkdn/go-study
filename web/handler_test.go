@@ -9,7 +9,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/jmoiron/sqlx"
-	"github.com/tkdn/go-study/infra/database"
+	"github.com/tkdn/go-study/domain"
+	"github.com/tkdn/go-study/infra"
 	"github.com/tkdn/go-study/web"
 )
 
@@ -19,7 +20,7 @@ type testType struct {
 	expect any
 }
 
-var testUser database.User = database.User{
+var testUser domain.User = domain.User{
 	ID:   123,
 	Name: "test太郎",
 	Age:  999,
@@ -147,7 +148,7 @@ type testDB struct {
 }
 
 func (t *testDB) setupTestDB() {
-	db, err := sqlx.Open("postgres", database.GetDsn())
+	db, err := sqlx.Open("pgx", infra.GetDsn())
 	if err != nil {
 		panic(err.Error())
 	}
