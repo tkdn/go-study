@@ -14,7 +14,7 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*domain.User, error) {
-	u, err := r.UserRepo.Insert(input.Name, input.Age)
+	u, err := r.UserRepo.Insert(ctx, input.Name, input.Age)
 	if err != nil {
 		log.Logger.Error(err.Error())
 		return nil, err
@@ -24,7 +24,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*domain.Post, error) {
-	p, err := r.PostRepo.Insert(input.UserID, input.Text)
+	p, err := r.PostRepo.Insert(ctx, input.UserID, input.Text)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) 
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*domain.User, error) {
-	users, err := r.UserRepo.GetList()
+	users, err := r.UserRepo.GetList(ctx)
 	if err != nil {
 		log.Logger.Error(err.Error())
 		return nil, err
@@ -43,7 +43,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*domain.User, error) {
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id int) (*domain.User, error) {
-	u, err := r.UserRepo.GetById(id)
+	u, err := r.UserRepo.GetById(ctx, id)
 	if err != nil {
 		log.Logger.Error(err.Error())
 		return nil, err
@@ -53,7 +53,7 @@ func (r *queryResolver) User(ctx context.Context, id int) (*domain.User, error) 
 
 // Post is the resolver for the post field.
 func (r *userResolver) Post(ctx context.Context, obj *domain.User) ([]*domain.Post, error) {
-	p, err := r.PostRepo.GetListByUserID(obj.ID)
+	p, err := r.PostRepo.GetListByUserID(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

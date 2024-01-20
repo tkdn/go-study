@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"context"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -24,8 +24,8 @@ type Post struct {
 }
 
 type PostRepositry interface {
-	GetListByUserID(id int) ([]*Post, error)
-	Insert(userID int, text string) (*Post, error)
+	GetListByUserID(ctx context.Context, id int) ([]*Post, error)
+	Insert(ctx context.Context, userID int, text string) (*Post, error)
 }
 
 func NewPostRepository(db *sqlx.DB) PostRepositry {
@@ -36,28 +36,27 @@ func NewPostRepository(db *sqlx.DB) PostRepositry {
 	return r
 }
 
-func (r *postRepo) GetListByUserID(id int) ([]*Post, error) {
+func (r *postRepo) GetListByUserID(ctx context.Context, id int) ([]*Post, error) {
 	q, args, err := r.tables.posts.Select("id", "text", "created_at").Where(goqu.C("user_id").Eq(id)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
 	var posts []*Post
-	if err := r.db.Select(&posts, q, args...); err != nil {
+	if err := r.db.SelectContext(ctx, &posts, q, args...); err != nil {
 		return nil, err
 	}
 	return posts, err
 }
 
-func (r *postRepo) Insert(userId int, text string) (*Post, error) {
+func (r *postRepo) Insert(ctx context.Context, userId int, text string) (*Post, error) {
 	q, args, err := r.tables.mposts.Rows(
 		goqu.Record{"user_id": userId, "text": text},
 	).Returning("id", "user_id", "text", "created_at").ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(q, args)
 	var post Post
-	if err := r.db.Get(&post, q, args...); err != nil {
+	if err := r.db.GetContext(ctx, &post, q, args...); err != nil {
 		return nil, err
 	}
 	return &post, nil

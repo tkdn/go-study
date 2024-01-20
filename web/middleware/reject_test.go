@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/tkdn/go-study/middleware"
+	"github.com/tkdn/go-study/web/middleware"
 )
 
 var tests = []struct {

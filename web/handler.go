@@ -39,7 +39,7 @@ func (h *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil {
 		users := domain.NewUserRepository(h.DB)
-		u, _ = users.GetById(ui)
+		u, _ = users.GetById(r.Context(), ui)
 	}
 
 	res := JsonResponse{
