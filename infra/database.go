@@ -5,33 +5,44 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/XSAM/otelsql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	"github.com/tkdn/go-study/log"
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
-func ConnectDB() *sqlx.DB {
-	db, err := sqlx.Open("pgx", GetDsn())
+var (
+	dbHost    = os.Getenv("DB_HOST")
+	dbUser    = os.Getenv("POSTGRES_USER")
+	dbPass    = os.Getenv("POSTGRES_PASSWORD")
+	dbName    = os.Getenv("POSTGRES_DB")
+	dbPort, _ = strconv.Atoi(os.Getenv("DB_PORT"))
+)
+
+func ConnectDB() (*sqlx.DB, error) {
+	db, err := otelsql.Open("pgx", GetDsn(), otelsql.WithAttributes(newAttrs()...))
 	if err != nil {
-		log.Logger.Error(err.Error())
-		panic(err)
+		return nil, err
 	}
-	if err := db.Ping(); err != nil {
-		log.Logger.Error(err.Error())
-		panic(err)
-	}
-	return db
+	return sqlx.NewDb(db, "pgx"), nil
 }
 
 func GetDsn() string {
-	p, _ := strconv.Atoi(os.Getenv("DB_PORT"))
 	dsn := fmt.Sprintf(
 		"postgres://%v:%v@%v:%v/%v?sslmode=disable",
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		p,
-		os.Getenv("POSTGRES_DB"),
+		dbUser, dbPass, dbHost, dbPort, dbName,
 	)
 	return dsn
+}
+
+func newAttrs() []attribute.KeyValue {
+	attrs := make([]attribute.KeyValue, 0, 5)
+	attrs = append(attrs,
+		semconv.ServerAddress(dbHost),
+		semconv.DBUser(dbUser),
+		semconv.NetworkTransportTCP,
+		semconv.ServerPort(dbPort),
+		semconv.DBSystemPostgreSQL)
+	return attrs
 }

@@ -18,7 +18,10 @@ import (
 
 func main() {
 	ctx := context.Background()
-	db := infra.ConnectDB()
+	db, err := infra.ConnectDB()
+	if err != nil {
+		log.Logger.Error(err.Error())
+	}
 	defer db.Close()
 
 	tpShutdown, err := telemetry.Do(ctx)

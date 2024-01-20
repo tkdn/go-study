@@ -13,7 +13,10 @@ import (
 var testDB *sqlx.DB
 
 func TestMain(m *testing.M) {
-	db := infra.ConnectDB()
+	db, err := infra.ConnectDB()
+	if err != nil {
+		log.Logger.Error(err.Error())
+	}
 	testDB = db
 	if _, err := db.Exec(`TRUNCATE TABLE users, posts`); err != nil {
 		log.Logger.Error("failed to trucate tables")
