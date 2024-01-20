@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -55,7 +54,6 @@ func (r *postRepo) Insert(userId int, text string) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(q, args)
 	var post Post
 	if err := r.db.Get(&post, q, args...); err != nil {
 		return nil, err
