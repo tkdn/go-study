@@ -1,4 +1,4 @@
-package database
+package domain
 
 import (
 	"time"
@@ -15,4 +15,3 @@ type Post struct {
 	Text      string    `db:"text" json:"text"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
 }
-

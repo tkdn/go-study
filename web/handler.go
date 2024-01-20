@@ -7,16 +7,16 @@ import (
 	"strconv"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tkdn/go-study/infra/database"
+	"github.com/tkdn/go-study/domain"
 	"github.com/tkdn/go-study/log"
 )
 
 // These struct and method has not already used.
 type JsonResponse struct {
-	Status  string         `json:"status"`
-	Message string         `json:"message"`
-	Query   int            `json:"query,omitempty"`
-	User    *database.User `json:"user,omitempty"`
+	Status  string       `json:"status"`
+	Message string       `json:"message"`
+	Query   int          `json:"query,omitempty"`
+	User    *domain.User `json:"user,omitempty"`
 }
 
 type MyHandler struct {
@@ -31,14 +31,14 @@ func (h *MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var u *database.User
+	var u *domain.User
 	q := r.URL.Query().Get("query")
 	qi, _ := strconv.Atoi(q)
 	id := r.URL.Query().Get("user_id")
 	ui, err := strconv.Atoi(id)
 
 	if err == nil {
-		users := database.NewUserRepository(h.DB)
+		users := domain.NewUserRepository(h.DB)
 		u, _ = users.GetById(ui)
 	}
 

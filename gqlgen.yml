@@ -12,7 +12,7 @@ resolver:
   package: graph
   filename_template: "{name}.resolvers.go"
 autobind:
-  - "github.com/tkdn/go-study/infra/database"
+  - "github.com/tkdn/go-study/domain"
 models:
   ID:
     model:
@@ -27,7 +27,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   User:
     model:
-      - github.com/tkdn/go-study/infra/database.User
+      - github.com/tkdn/go-study/domain.User
   Post:
     model:
-      - github.com/tkdn/go-study/infra/database.Post
+      - github.com/tkdn/go-study/domain.Post

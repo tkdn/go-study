@@ -8,13 +8,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/tkdn/go-study/domain"
 	"github.com/tkdn/go-study/graph/model"
-	"github.com/tkdn/go-study/infra/database"
 	"github.com/tkdn/go-study/log"
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*database.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*domain.User, error) {
 	u, err := r.UserRepo.Insert(input.Name, input.Age)
 	if err != nil {
 		log.Logger.Error(err.Error())
@@ -24,12 +24,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 // CreatePost is the resolver for the createPost field.
-func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*database.Post, error) {
+func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*domain.Post, error) {
 	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*database.User, error) {
+func (r *queryResolver) Users(ctx context.Context) ([]*domain.User, error) {
 	users, err := r.UserRepo.GetList()
 	if err != nil {
 		log.Logger.Error(err.Error())
@@ -39,7 +39,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*database.User, error) {
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id int) (*database.User, error) {
+func (r *queryResolver) User(ctx context.Context, id int) (*domain.User, error) {
 	u, err := r.UserRepo.GetById(id)
 	if err != nil {
 		log.Logger.Error(err.Error())
@@ -49,7 +49,7 @@ func (r *queryResolver) User(ctx context.Context, id int) (*database.User, error
 }
 
 // Post is the resolver for the post field.
-func (r *userResolver) Post(ctx context.Context, obj *database.User) ([]*database.Post, error) {
+func (r *userResolver) Post(ctx context.Context, obj *domain.User) ([]*domain.Post, error) {
 	panic(fmt.Errorf("not implemented: Post - post"))
 }
 
