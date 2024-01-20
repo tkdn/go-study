@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/tkdn/go-study/domain"
 	"github.com/tkdn/go-study/graph/model"
@@ -25,7 +24,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, input model.NewPost) (*domain.Post, error) {
-	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
+	p, err := r.PostRepo.Insert(input.UserID, input.Text)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // Users is the resolver for the users field.
@@ -50,7 +53,11 @@ func (r *queryResolver) User(ctx context.Context, id int) (*domain.User, error) 
 
 // Post is the resolver for the post field.
 func (r *userResolver) Post(ctx context.Context, obj *domain.User) ([]*domain.Post, error) {
-	panic(fmt.Errorf("not implemented: Post - post"))
+	p, err := r.PostRepo.GetListByUserID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }
 
 // Mutation returns MutationResolver implementation.

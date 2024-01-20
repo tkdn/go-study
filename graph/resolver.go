@@ -11,4 +11,5 @@ import (
 
 type Resolver struct {
 	UserRepo domain.UserRepository
+	PostRepo domain.PostRepositry
 }

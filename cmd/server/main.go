@@ -21,6 +21,7 @@ func main() {
 	c := graph.Config{
 		Resolvers: &graph.Resolver{
 			UserRepo: domain.NewUserRepository(db),
+			PostRepo: domain.NewPostRepository(db),
 		},
 	}
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
