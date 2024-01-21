@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type userRepo struct {
+type UserRepository struct {
 	db     *sqlx.DB
 	tables struct {
 		users  *goqu.SelectDataset
@@ -24,21 +24,15 @@ type User struct {
 	Age  int    `db:"age" json:"age"`
 }
 
-type UserRepository interface {
-	GetById(ctx context.Context, id int) (*User, error)
-	GetList(ctx context.Context) ([]*User, error)
-	Insert(ctx context.Context, name string, age int) (*User, error)
-}
-
-func NewUserRepository(db *sqlx.DB) UserRepository {
-	r := &userRepo{}
+func NewUserRepository(db *sqlx.DB) *UserRepository {
+	r := &UserRepository{}
 	r.db = db
 	r.tables.users = goqu.Dialect("postgres").From("users").Prepared(true)
 	r.tables.musers = goqu.Dialect("postgres").Insert("users").Prepared(true)
 	return r
 }
 
-func (r *userRepo) GetById(ctx context.Context, id int) (*User, error) {
+func (r *UserRepository) GetById(ctx context.Context, id int) (*User, error) {
 	q, args, err := r.tables.users.Select("id", "name", "age").Where(goqu.C("id").Eq(id)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -50,7 +44,7 @@ func (r *userRepo) GetById(ctx context.Context, id int) (*User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) GetList(ctx context.Context) ([]*User, error) {
+func (r *UserRepository) GetList(ctx context.Context) ([]*User, error) {
 	q, args, err := r.tables.users.Select("id", "name", "age").ToSQL()
 	if err != nil {
 		return nil, err
@@ -62,7 +56,7 @@ func (r *userRepo) GetList(ctx context.Context) ([]*User, error) {
 	return users, nil
 }
 
-func (r *userRepo) Insert(ctx context.Context, name string, age int) (*User, error) {
+func (r *UserRepository) Insert(ctx context.Context, name string, age int) (*User, error) {
 	q, args, err := r.tables.musers.Rows(
 		goqu.Record{"name": name, "age": age},
 	).Returning("id", "name", "age").ToSQL()
