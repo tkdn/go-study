@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/tkdn/go-study/domain"
 	"github.com/tkdn/go-study/graph"
+	"github.com/tkdn/go-study/graph/loaders"
 	"github.com/tkdn/go-study/infra"
 	"github.com/tkdn/go-study/log"
 	"github.com/tkdn/go-study/telemetry"
@@ -30,13 +31,16 @@ func main() {
 	}
 	defer tpShutdown()
 
+	userRepo := domain.NewUserRepository(db)
+	postRepo := domain.NewPostRepository(db)
 	c := graph.Config{
 		Resolvers: &graph.Resolver{
-			UserRepo: domain.NewUserRepository(db),
-			PostRepo: domain.NewPostRepository(db),
+			UserRepo: userRepo,
+			PostRepo: postRepo,
 		},
 	}
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(c))
+	srv.Use(loaders.New(loaders.WithPostRepo(postRepo)))
 	mux := http.NewServeMux()
 	mux.Handle("/playground", playground.Handler("Graphql playground", "/graphql"))
 	mux.Handle("/graphql", srv)

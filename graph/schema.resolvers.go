@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/tkdn/go-study/domain"
+	"github.com/tkdn/go-study/graph/loaders"
 	"github.com/tkdn/go-study/graph/model"
 	"github.com/tkdn/go-study/log"
 )
@@ -53,11 +54,11 @@ func (r *queryResolver) User(ctx context.Context, id int) (*domain.User, error) 
 
 // Post is the resolver for the post field.
 func (r *userResolver) Post(ctx context.Context, obj *domain.User) ([]*domain.Post, error) {
-	p, err := r.PostRepo.GetListByUserID(ctx, obj.ID)
+	posts, err := loaders.GetPostsByUserID(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}
-	return p, nil
+	return posts, nil
 }
 
 // Mutation returns MutationResolver implementation.
