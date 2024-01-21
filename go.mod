@@ -8,6 +8,7 @@ require (
 	github.com/99designs/gqlgen v0.17.42
 	github.com/XSAM/otelsql v0.27.0
 	github.com/doug-martin/goqu/v9 v9.19.0
+	github.com/graph-gophers/dataloader/v7 v7.1.0
 	github.com/jackc/pgx/v5 v5.5.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/vektah/gqlparser/v2 v2.5.10
@@ -18,7 +19,6 @@ require (
 )
 
 require (
-	github.com/XSAM/otelsql v0.27.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect

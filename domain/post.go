@@ -31,6 +31,26 @@ func NewPostRepository(db *sqlx.DB) *PostRepository {
 	return r
 }
 
+func (r *PostRepository) GetListByUserIDs(ctx context.Context, userIDs []int) (map[int][]*Post, error) {
+	q, args, err := r.tables.posts.Select("id", "user_id", "text", "created_at").Where(goqu.C("user_id").In(userIDs)).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	var posts []*Post
+	if err := r.db.SelectContext(ctx, &posts, q, args...); err != nil {
+		return nil, err
+	}
+	groupByUserIds := make(map[int][]*Post, 0)
+	for _, post := range posts {
+		if mapV, ok := groupByUserIds[post.UserID]; ok {
+			groupByUserIds[post.UserID] = append(mapV, post)
+			continue
+		}
+		groupByUserIds[post.UserID] = []*Post{post}
+	}
+	return groupByUserIds, err
+}
+
 func (r *PostRepository) GetListByUserID(ctx context.Context, id int) ([]*Post, error) {
 	q, args, err := r.tables.posts.Select("id", "text", "created_at").Where(goqu.C("user_id").Eq(id)).ToSQL()
 	if err != nil {
