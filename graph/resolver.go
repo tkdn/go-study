@@ -9,6 +9,6 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	UserRepo domain.UserRepository
-	PostRepo domain.PostRepositry
+	UserRepo *domain.UserRepository
+	PostRepo *domain.PostRepository
 }
