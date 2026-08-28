@@ -23,7 +23,7 @@ func TestRejectAdminInternal(t *testing.T) {
 		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			_, err := w.Write([]byte("Hello, world"))
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 		})
 		ts := httptest.NewServer(middleware.RejectAdminInternal(r))
@@ -34,12 +34,12 @@ func TestRejectAdminInternal(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			req, err := http.NewRequest("GET", ts.URL, nil)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 			req.Host = tt.host
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 			got := res.StatusCode
 			if got != tt.want {
